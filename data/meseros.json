@@ -1,0 +1,17 @@
+[
+  {
+    "mesero_id": 1,
+    "nombre": "Carlos Pérez",
+    "pin": "1234"
+  },
+  {
+    "mesero_id": 2,
+    "nombre": "Laura Gómez",
+    "pin": "5678"
+  },
+  {
+    "mesero_id": 3,
+    "nombre": "Andrés Torres",
+    "pin": "9012"
+  }
+]

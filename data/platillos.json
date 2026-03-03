@@ -1,0 +1,44 @@
+[
+  {
+    "platillo_id": 1,
+    "nombre": "Sopa de tomate",
+    "precio": 12000.0,
+    "categoria": "entrada",
+    "disponible": true
+  },
+  {
+    "platillo_id": 2,
+    "nombre": "Ensalada César",
+    "precio": 15000.0,
+    "categoria": "entrada",
+    "disponible": true
+  },
+  {
+    "platillo_id": 3,
+    "nombre": "Bandeja paisa",
+    "precio": 35000.0,
+    "categoria": "plato_fuerte",
+    "disponible": true
+  },
+  {
+    "platillo_id": 4,
+    "nombre": "Churrasco",
+    "precio": 42000.0,
+    "categoria": "plato_fuerte",
+    "disponible": true
+  },
+  {
+    "platillo_id": 5,
+    "nombre": "Brownie con helado",
+    "precio": 14000.0,
+    "categoria": "postre",
+    "disponible": true
+  },
+  {
+    "platillo_id": 6,
+    "nombre": "Jugo de maracuyá",
+    "precio": 8000.0,
+    "categoria": "bebida",
+    "disponible": true
+  }
+]
