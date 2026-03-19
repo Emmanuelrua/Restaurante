@@ -22,5 +22,8 @@ jobs:
       - name: Lint con ruff
         run: uv run ruff check .
 
+      - name: Check code complexity
+        run: uv run radon cc src -a --no-assert -nc
+
       - name: Ejecutar tests
         run: uv run pytest -v --tb=short

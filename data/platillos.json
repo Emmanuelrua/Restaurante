@@ -40,5 +40,12 @@
     "precio": 8000.0,
     "categoria": "bebida",
     "disponible": true
+  },
+  {
+    "platillo_id": 45,
+    "nombre": "churrasco",
+    "precio": 35000.0,
+    "categoria": "plato_fuerte",
+    "disponible": true
   }
 ]
