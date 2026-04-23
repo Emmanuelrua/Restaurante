@@ -12,18 +12,18 @@ class Platillo:
     """Representa un platillo del menú del restaurante.
 
     Attributes:
-        platillo_id: Identificador único del platillo.
         nombre: Nombre del platillo.
         precio: Precio en pesos colombianos.
         categoria: Tipo de platillo (entrada, plato_fuerte, postre, bebida).
         disponible: Indica si el platillo está disponible en el menú.
+        platillo_id: Identificador único asignado automáticamente por el almacenamiento.
     """
 
-    platillo_id: int
     nombre: str
     precio: float
     categoria: str
     disponible: bool = True
+    platillo_id: int | None = None
 
     def __post_init__(self) -> None:
         """Valida los datos del platillo al momento de crearlo."""
@@ -33,8 +33,8 @@ class Platillo:
         self._validar_categoria()
 
     def _validar_id(self) -> None:
-        """Verifica que el id sea un entero positivo."""
-        if self.platillo_id <= 0:
+        """Verifica que el id, si ya fue asignado, sea un entero positivo."""
+        if self.platillo_id is not None and self.platillo_id <= 0:
             raise DatosPlatilloInvalidosError("El id del platillo debe ser un entero positivo")
 
     def _validar_nombre(self) -> None:

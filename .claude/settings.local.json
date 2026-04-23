@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(wsl -d kali-linux -e bash -c \"cd /home/Emmanuel/Desktop/restaurante-cli && ~/.local/bin/uv sync 2>&1 | tail -10\")",
+      "PowerShell(wsl -d kali-linux -e bash -c \"cd /home/Emmanuel/Desktop/restaurante-cli && ~/.local/bin/uv run python -c 'import requests, dotenv; print\\(\\\\\"OK\\\\\"\\)'  2>&1\")",
+      "PowerShell(wsl -d kali-linux -e bash -c \"cd /home/Emmanuel/Desktop/restaurante-cli && ~/.local/bin/uv run python -c 'import requests; import dotenv; print\\(requests.__version__\\)'  2>&1\")",
+      "PowerShell(wsl -d kali-linux -e bash -c \"find /home/Emmanuel/Desktop/restaurante-cli/docs -type f 2>/dev/null\")"
+    ]
+  }
+}

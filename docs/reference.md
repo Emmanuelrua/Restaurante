@@ -28,7 +28,7 @@ Documentación generada automáticamente a partir de los docstrings del código 
 
 ---
 
-## Storage
+## Storage — JSON (local)
 
 ### MeseroJSONStorage
 
@@ -37,6 +37,18 @@ Documentación generada automáticamente a partir de los docstrings del código 
 ### PlatilloJSONStorage
 
 ::: src.mi_app.storage.PlatilloJSONStorage
+
+---
+
+## Storage — Supabase (nube)
+
+### MeseroSupabaseStorage
+
+::: src.mi_app.storage_supabase.MeseroSupabaseStorage
+
+### PlatilloSupabaseStorage
+
+::: src.mi_app.storage_supabase.PlatilloSupabaseStorage
 
 ---
 

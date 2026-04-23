@@ -64,7 +64,48 @@ uv run python main.py menu
 ```
 
 !!! success "¡Listo!"
-    Si ves el menú principal con las opciones de meseros y platillos, el proyecto está correctamente instalado.
+    Si ves el menú principal con las opciones de meseros y platillos, el proyecto está correctamente instalado.  
+    Por defecto los datos se guardan en `data/meseros.json` y `data/platillos.json`.
+
+---
+
+## Configurar Supabase (opcional)
+
+Si quieres persistir los datos en la nube usando **Supabase + PostgreSQL**, sigue estos pasos adicionales:
+
+### 1. Crear las tablas en Supabase
+
+En el panel de Supabase, ve a **SQL Editor** y ejecuta el contenido completo de `schema.sql` (incluido en la raíz del proyecto). Esto creará las tablas `meseros`, `platillos`, `mesas`, `pedidos` y `detalle_pedido` con todos sus datos de prueba.
+
+### 2. Configurar las credenciales
+
+Edita el archivo `.env` en la raíz del proyecto y completa tus credenciales:
+
+```bash
+# .env
+SUPABASE_URL=https://[TU_REF].supabase.co
+SUPABASE_KEY=[TU_ANON_KEY_O_SERVICE_ROLE_KEY]
+```
+
+Puedes encontrar estos valores en **Supabase → Settings → API**.
+
+!!! warning "Seguridad"
+    El archivo `.env` está incluido en `.gitignore` y **nunca debe subirse al repositorio**.  
+    Nunca compartas tu `service_role key` de forma pública.
+
+### 3. Ejecutar con Supabase
+
+Simplemente ejecuta la aplicación normalmente; detectará las credenciales automáticamente:
+
+```bash
+uv run python main.py menu
+```
+
+!!! info "¿Cómo sé qué backend está activo?"
+    Si `SUPABASE_URL` y `SUPABASE_KEY` están definidos en `.env`, la app usa Supabase.  
+    Si no están, usa los archivos JSON locales. No hay ningún flag adicional que cambiar.
+
+---
 
 ## Ejecutar los tests
 

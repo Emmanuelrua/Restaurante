@@ -45,7 +45,18 @@ class MeseroJSONStorage:
         return [Mesero(**item) for item in data]
 
     def guardar(self, meseros: list[Mesero]) -> None:
-        """Persiste la lista de meseros en el archivo JSON."""
+        """Persiste la lista de meseros en el archivo JSON.
+
+        Asigna automáticamente un ``mesero_id`` a los registros nuevos
+        cuyo id todavía sea ``None``, tomando como base el mayor id existente.
+        """
+        ids_asignados = {m.mesero_id for m in meseros if m.mesero_id is not None}
+        siguiente_id = max(ids_asignados, default=0) + 1
+        for m in meseros:
+            if m.mesero_id is None:
+                m.mesero_id = siguiente_id
+                siguiente_id += 1
+
         with open(self.filepath, "w", encoding="utf-8") as f:
             json.dump([asdict(m) for m in meseros], f, indent=2, ensure_ascii=False)
 
@@ -68,6 +79,17 @@ class PlatilloJSONStorage:
         return [Platillo(**item) for item in data]
 
     def guardar(self, platillos: list[Platillo]) -> None:
-        """Persiste la lista de platillos en el archivo JSON."""
+        """Persiste la lista de platillos en el archivo JSON.
+
+        Asigna automáticamente un ``platillo_id`` a los registros nuevos
+        cuyo id todavía sea ``None``, tomando como base el mayor id existente.
+        """
+        ids_asignados = {p.platillo_id for p in platillos if p.platillo_id is not None}
+        siguiente_id = max(ids_asignados, default=0) + 1
+        for p in platillos:
+            if p.platillo_id is None:
+                p.platillo_id = siguiente_id
+                siguiente_id += 1
+
         with open(self.filepath, "w", encoding="utf-8") as f:
             json.dump([asdict(p) for p in platillos], f, indent=2, ensure_ascii=False)

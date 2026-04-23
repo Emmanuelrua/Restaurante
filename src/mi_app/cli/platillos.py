@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -8,12 +6,12 @@ from rich.table import Table
 from src.mi_app.exceptions import AppError
 from src.mi_app.models import Platillo
 from src.mi_app.services import PlatilloService
-from src.mi_app.storage import PlatilloJSONStorage
+from src.mi_app.storage_supabase import PlatilloSupabaseStorage
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
 
-service = PlatilloService(PlatilloJSONStorage(Path("data/platillos.json")))
+service = PlatilloService(PlatilloSupabaseStorage())
 
 CATEGORIA_ESTILOS: dict[str, tuple[str, str]] = {
     "entrada": ("🥗", "green"),
@@ -97,16 +95,16 @@ def _pedir_categoria() -> str:
 def flujo_crear() -> None:
     """Pide los datos por prompt y crea un platillo."""
     console.print("\n[bold magenta]── Agregar platillo ──[/bold magenta]")
-    platillo_id = typer.prompt("  ID del platillo", type=int)
     nombre = typer.prompt("  Nombre del platillo")
     precio = typer.prompt("  Precio (COP)", type=float)
     categoria = _pedir_categoria()
     try:
-        platillo = Platillo(
-            platillo_id=platillo_id, nombre=nombre, precio=precio, categoria=categoria
-        )
+        platillo = Platillo(nombre=nombre, precio=precio, categoria=categoria)
         service.crear_platillo(platillo)
-        _ok(f"Platillo [bold magenta]{nombre}[/bold magenta] agregado al menú")
+        _ok(
+            f"Platillo [bold magenta]{nombre}[/bold magenta] "
+            f"agregado al menú con ID {platillo.platillo_id}"
+        )
     except AppError as e:
         _error(str(e))
 
@@ -193,7 +191,6 @@ def flujo_eliminar() -> None:
 
 @app.command("crear")
 def crear(
-    platillo_id: int = typer.Option(..., "--id", help="ID único del platillo"),
     nombre: str = typer.Option(..., "--nombre", help="Nombre del platillo"),
     precio: float = typer.Option(..., "--precio", help="Precio en pesos colombianos"),
     categoria: str = typer.Option(
@@ -202,11 +199,12 @@ def crear(
 ) -> None:
     """Agrega un nuevo platillo al menú."""
     try:
-        platillo = Platillo(
-            platillo_id=platillo_id, nombre=nombre, precio=precio, categoria=categoria
-        )
+        platillo = Platillo(nombre=nombre, precio=precio, categoria=categoria)
         service.crear_platillo(platillo)
-        _ok(f"Platillo [bold magenta]{nombre}[/bold magenta] agregado al menú")
+        _ok(
+            f"Platillo [bold magenta]{nombre}[/bold magenta] "
+            f"agregado al menú con ID {platillo.platillo_id}"
+        )
     except AppError as e:
         _error(str(e))
         raise typer.Exit(code=1)

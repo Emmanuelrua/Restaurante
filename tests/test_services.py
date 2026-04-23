@@ -24,7 +24,7 @@ def test_registrar_mesero_exitoso():
     mock_storage.cargar.return_value = []
 
     service = MeseroService(mock_storage)
-    mesero = Mesero(mesero_id=1, nombre="Carlos", pin="1234")
+    mesero = Mesero(nombre="Carlos", pin="1234")
 
     service.registrar_mesero(mesero)
 
@@ -34,10 +34,10 @@ def test_registrar_mesero_exitoso():
 def test_registrar_mesero_id_duplicado():
     """Verifica que se lanza error al registrar un mesero con id existente."""
     mock_storage = MagicMock()
-    mock_storage.cargar.return_value = [Mesero(mesero_id=1, nombre="Carlos", pin="1234")]
+    mock_storage.cargar.return_value = [Mesero(nombre="Carlos", pin="1234", mesero_id=1)]
 
     service = MeseroService(mock_storage)
-    mesero_nuevo = Mesero(mesero_id=1, nombre="Luis", pin="5678")
+    mesero_nuevo = Mesero(nombre="Luis", pin="5678", mesero_id=1)
 
     with pytest.raises(MeseroYaExisteError):
         service.registrar_mesero(mesero_nuevo)
@@ -48,7 +48,7 @@ def test_registrar_mesero_id_duplicado():
 def test_login_exitoso():
     """Verifica que el login retorna el mesero cuando el pin es correcto."""
     mock_storage = MagicMock()
-    mock_storage.cargar.return_value = [Mesero(mesero_id=1, nombre="Carlos", pin="1234")]
+    mock_storage.cargar.return_value = [Mesero(nombre="Carlos", pin="1234", mesero_id=1)]
 
     service = MeseroService(mock_storage)
     mesero = service.login(1, "1234")
@@ -59,7 +59,7 @@ def test_login_exitoso():
 def test_login_pin_incorrecto():
     """Verifica que el login lanza error cuando el pin no coincide."""
     mock_storage = MagicMock()
-    mock_storage.cargar.return_value = [Mesero(mesero_id=1, nombre="Carlos", pin="1234")]
+    mock_storage.cargar.return_value = [Mesero(nombre="Carlos", pin="1234", mesero_id=1)]
 
     service = MeseroService(mock_storage)
 
@@ -81,7 +81,7 @@ def test_login_mesero_no_encontrado():
 def test_eliminar_mesero_exitoso():
     """Verifica que un mesero existente se elimina correctamente."""
     mock_storage = MagicMock()
-    mock_storage.cargar.return_value = [Mesero(mesero_id=1, nombre="Carlos", pin="1234")]
+    mock_storage.cargar.return_value = [Mesero(nombre="Carlos", pin="1234", mesero_id=1)]
 
     service = MeseroService(mock_storage)
     service.eliminar_mesero(1)
@@ -92,7 +92,7 @@ def test_eliminar_mesero_exitoso():
 def test_mesero_pin_invalido():
     """Verifica que se lanza error al crear un mesero con pin no numérico."""
     with pytest.raises(DatosMeseroInvalidosError):
-        Mesero(mesero_id=1, nombre="Carlos", pin="abcd")
+        Mesero(nombre="Carlos", pin="abcd")
 
 
 # ── Tests de Platillos ────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ def test_crear_platillo_exitoso():
     mock_storage.cargar.return_value = []
 
     service = PlatilloService(mock_storage)
-    platillo = Platillo(platillo_id=1, nombre="Sopa del día", precio=12000.0, categoria="entrada")
+    platillo = Platillo(nombre="Sopa del día", precio=12000.0, categoria="entrada")
 
     service.crear_platillo(platillo)
 
@@ -115,11 +115,11 @@ def test_crear_platillo_id_duplicado():
     """Verifica que se lanza error al crear un platillo con id existente."""
     mock_storage = MagicMock()
     mock_storage.cargar.return_value = [
-        Platillo(platillo_id=1, nombre="Sopa del día", precio=12000.0, categoria="entrada")
+        Platillo(nombre="Sopa del día", precio=12000.0, categoria="entrada", platillo_id=1)
     ]
 
     service = PlatilloService(mock_storage)
-    platillo_nuevo = Platillo(platillo_id=1, nombre="Ensalada", precio=8000.0, categoria="entrada")
+    platillo_nuevo = Platillo(nombre="Ensalada", precio=8000.0, categoria="entrada", platillo_id=1)
 
     with pytest.raises(PlatilloYaExisteError):
         service.crear_platillo(platillo_nuevo)
@@ -142,8 +142,8 @@ def test_listar_por_categoria():
     """Verifica que el filtro por categoría retorna solo los platillos correctos."""
     mock_storage = MagicMock()
     mock_storage.cargar.return_value = [
-        Platillo(platillo_id=1, nombre="Sopa", precio=12000.0, categoria="entrada"),
-        Platillo(platillo_id=2, nombre="Bandeja paisa", precio=32000.0, categoria="plato_fuerte"),
+        Platillo(nombre="Sopa", precio=12000.0, categoria="entrada", platillo_id=1),
+        Platillo(nombre="Bandeja paisa", precio=32000.0, categoria="plato_fuerte", platillo_id=2),
     ]
 
     service = PlatilloService(mock_storage)
@@ -157,7 +157,7 @@ def test_eliminar_platillo_exitoso():
     """Verifica que un platillo existente se elimina correctamente."""
     mock_storage = MagicMock()
     mock_storage.cargar.return_value = [
-        Platillo(platillo_id=1, nombre="Sopa", precio=12000.0, categoria="entrada")
+        Platillo(nombre="Sopa", precio=12000.0, categoria="entrada", platillo_id=1)
     ]
 
     service = PlatilloService(mock_storage)
@@ -169,10 +169,10 @@ def test_eliminar_platillo_exitoso():
 def test_platillo_categoria_invalida():
     """Verifica que se lanza error al crear un platillo con categoría no permitida."""
     with pytest.raises(CategoriaInvalidaError):
-        Platillo(platillo_id=1, nombre="Algo raro", precio=5000.0, categoria="snack")
+        Platillo(nombre="Algo raro", precio=5000.0, categoria="snack")
 
 
 def test_platillo_precio_invalido():
     """Verifica que se lanza error al crear un platillo con precio negativo."""
     with pytest.raises(DatosPlatilloInvalidosError):
-        Platillo(platillo_id=1, nombre="Sopa", precio=-100.0, categoria="entrada")
+        Platillo(nombre="Sopa", precio=-100.0, categoria="entrada")

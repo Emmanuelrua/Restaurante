@@ -28,23 +28,24 @@ Abre una interfaz en la terminal donde puedes navegar entre opciones usando núm
 === "Comando directo"
 
     ```bash
-    uv run python main.py meseros registrar --id 1 --nombre "Carlos Pérez" --pin 1234
+    uv run python main.py meseros registrar --nombre "Carlos Pérez" --pin 1234
     ```
+
+El sistema asigna el ID automáticamente y lo muestra al finalizar.
 
 **Parámetros:**
 
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
-| `--id` | `int` | ID único del mesero |
 | `--nombre` | `str` | Nombre completo |
 | `--pin` | `str` | PIN de 4 dígitos numéricos |
 
 **Ejemplo de salida:**
 
 ```
-╭──────────────────────────────────────────╮
-│ ✅ Mesero Carlos Pérez registrado con ID 1│
-╰──────────────────────────────────────────╯
+╭──────────────────────────────────────────────────╮
+│ ✅ Mesero Carlos Pérez registrado con ID 1        │
+╰──────────────────────────────────────────────────╯
 ```
 
 ---
@@ -103,14 +104,15 @@ uv run python main.py meseros eliminar --id 1
 === "Comando directo"
 
     ```bash
-    uv run python main.py platillos crear --id 1 --nombre "Sopa del día" --precio 12000 --categoria entrada
+    uv run python main.py platillos crear --nombre "Sopa del día" --precio 12000 --categoria entrada
     ```
+
+El sistema asigna el ID automáticamente y lo muestra al finalizar.
 
 **Parámetros:**
 
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
-| `--id` | `int` | ID único del platillo |
 | `--nombre` | `str` | Nombre del platillo |
 | `--precio` | `float` | Precio en pesos colombianos |
 | `--categoria` | `str` | `entrada`, `plato_fuerte`, `postre` o `bebida` |

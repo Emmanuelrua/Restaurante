@@ -61,9 +61,9 @@ class MeseroService:
                 return mesero
         raise MeseroNoEncontradoError(mesero_id)
 
-    def _verificar_que_no_existe(self, mesero_id: int, meseros: list[Mesero]) -> None:
+    def _verificar_que_no_existe(self, mesero_id: int | None, meseros: list[Mesero]) -> None:
         """Lanza error si ya existe un mesero con el id dado."""
-        if any(m.mesero_id == mesero_id for m in meseros):
+        if mesero_id is not None and any(m.mesero_id == mesero_id for m in meseros):
             raise MeseroYaExisteError(mesero_id)
 
     def _verificar_pin(self, pin: str, mesero: Mesero) -> None:
@@ -137,9 +137,9 @@ class PlatilloService:
                 return platillo
         raise PlatilloNoEncontradoError(platillo_id)
 
-    def _verificar_que_no_existe(self, platillo_id: int, platillos: list[Platillo]) -> None:
+    def _verificar_que_no_existe(self, platillo_id: int | None, platillos: list[Platillo]) -> None:
         """Lanza error si ya existe un platillo con el id dado."""
-        if any(p.platillo_id == platillo_id for p in platillos):
+        if platillo_id is not None and any(p.platillo_id == platillo_id for p in platillos):
             raise PlatilloYaExisteError(platillo_id)
 
     def _aplicar_cambios(

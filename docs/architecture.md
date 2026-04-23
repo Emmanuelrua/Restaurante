@@ -10,26 +10,29 @@ El proyecto utiliza el patrón **src layout**, que separa el código fuente de l
 
 ```
 restaurante-cli/
-├── main.py                  # Punto de entrada
-├── pyproject.toml           # Configuración del proyecto
-├── data/                    # Archivos JSON de persistencia
+├── main.py                      # Punto de entrada (carga .env antes de importar)
+├── pyproject.toml               # Configuración del proyecto
+├── schema.sql                   # DDL completo para crear las tablas en Supabase
+├── .env                         # Variables de entorno (no se sube a git)
+├── data/                        # Archivos JSON de persistencia local
 │   ├── meseros.json
 │   └── platillos.json
 ├── src/
 │   └── mi_app/
-│       ├── cli/             # Capa de presentación (Typer + Rich)
+│       ├── cli/                 # Capa de presentación (Typer + Rich)
 │       │   ├── app.py
 │       │   ├── meseros.py
 │       │   └── platillos.py
-│       ├── models/          # Entidades del dominio (dataclasses)
+│       ├── models/              # Entidades del dominio (dataclasses)
 │       │   ├── mesero.py
 │       │   └── platillo.py
-│       ├── services.py      # Lógica de negocio
-│       ├── storage.py       # Capa de persistencia
-│       └── exceptions.py    # Excepciones personalizadas
+│       ├── services.py          # Lógica de negocio
+│       ├── storage.py           # Storage JSON (implementación local)
+│       ├── storage_supabase.py  # Storage Supabase (implementación en la nube)
+│       └── exceptions.py        # Excepciones personalizadas
 ├── tests/
 │   └── test_services.py
-└── docs/                    # Documentación MkDocs
+└── docs/                        # Documentación MkDocs
 ```
 
 !!! info "¿Por qué src layout?"
@@ -39,7 +42,8 @@ restaurante-cli/
 
 ## Separación por capas
 
-El sistema está organizado en **4 capas** con responsabilidades bien definidas:
+El sistema está organizado en **4 capas** con responsabilidades bien definidas.  
+La capa de Storage tiene dos implementaciones concretas que los servicios **no distinguen**:
 
 ```mermaid
 flowchart TD
@@ -57,31 +61,43 @@ flowchart TD
     end
 
     subgraph Persistencia
-        STR["storage.py — JSON Storage"]
+        PROTO["storage Protocol — contrato abstracto"]
+        JSON["MeseroJSONStorage\nPlatilloJSONStorage"]
+        SB["MeseroSupabaseStorage\nPlatilloSupabaseStorage"]
     end
 
     CLI --> SVC
     SVC --> MOD
-    SVC --> STR
+    SVC --> PROTO
     SVC --> EXC
-    STR --> MOD
+    PROTO --> JSON
+    PROTO --> SB
 ```
 
 ### Capa CLI (`cli/`)
 
-Maneja toda la interacción con el usuario: prompts, tablas Rich, paneles de éxito/error. **No contiene lógica de negocio**; delega todo al servicio correspondiente.
+Maneja toda la interacción con el usuario: prompts, tablas Rich, paneles de éxito/error. **No contiene lógica de negocio**; delega todo al servicio correspondiente.  
+Al iniciar, decide qué implementación de Storage usar: si las variables `SUPABASE_URL` y `SUPABASE_KEY` están definidas en el entorno, instancia el storage de Supabase; de lo contrario, usa JSON local.
 
 ### Capa de Servicios (`services.py`)
 
-Contiene las reglas de negocio: verificar duplicados, buscar por ID, validar credenciales. Recibe un objeto `Storage` por inyección en el constructor.
+Contiene las reglas de negocio: verificar duplicados, buscar por ID, validar credenciales. Recibe un objeto `Storage` por inyección en el constructor y **no sabe** si está hablando con archivos JSON o con Supabase.
 
 ### Capa de Modelos (`models/`)
 
 Define las entidades `Mesero` y `Platillo` como `dataclasses` con validaciones en `__post_init__`. Cada entidad vive en su propio archivo.
 
-### Capa de Storage (`storage.py`)
+### Capa de Storage (`storage.py` / `storage_supabase.py`)
 
-Implementa la lectura/escritura de JSON. Usa `Protocol` para definir contratos, lo que facilita la extensibilidad.
+Implementa la lectura/escritura de datos.  
+Usa `Protocol` para definir el contrato y permite intercambiar implementaciones sin tocar los servicios.
+
+| Implementación | Mecanismo | Cuándo se usa |
+|----------------|-----------|---------------|
+| `MeseroJSONStorage` | Archivo `data/meseros.json` | Sin `.env` configurado |
+| `MeseroSupabaseStorage` | API REST de Supabase (PostgREST) | Con `SUPABASE_URL` y `SUPABASE_KEY` en `.env` |
+| `PlatilloJSONStorage` | Archivo `data/platillos.json` | Sin `.env` configurado |
+| `PlatilloSupabaseStorage` | API REST de Supabase (PostgREST) | Con `SUPABASE_URL` y `SUPABASE_KEY` en `.env` |
 
 ---
 
@@ -93,16 +109,21 @@ Cada módulo tiene una única responsabilidad:
 
 - `models/` → solo define la estructura y validación de datos.
 - `services.py` → solo contiene lógica de negocio.
-- `storage.py` → solo maneja persistencia.
+- `storage.py` / `storage_supabase.py` → solo manejan persistencia.
 - `cli/` → solo maneja la interfaz de usuario.
 
 ### Dependency Inversion
 
-Los servicios dependen de abstracciones (`Protocol`), no de implementaciones concretas. Esto permite usar mocks en los tests sin necesidad de archivos JSON reales.
+Los servicios dependen de abstracciones (`Protocol`), no de implementaciones concretas. Esto permite usar mocks en los tests y cambiar el backend de almacenamiento sin tocar la lógica de negocio.
+
+### Open/Closed Principle
+
+El sistema está **abierto para extensión** (se puede agregar `MeseroSQLiteStorage`, `MeseroRedisStorage`, etc.) **sin modificar** los servicios existentes — solo hay que respetar el `Protocol`.
 
 ### Don't Repeat Yourself (DRY)
 
-Los helpers de UI (`_ok`, `_error`, `_tabla_meseros`, `_tabla_platillos`) encapsulan patrones repetidos de presentación, evitando duplicar código de Rich en cada comando.
+Los helpers de UI (`_ok`, `_error`, `_tabla_meseros`, `_tabla_platillos`) encapsulan patrones repetidos de presentación, evitando duplicar código de Rich en cada comando.  
+En `storage_supabase.py`, `_base()`, `_headers()` y `_check()` centralizan la configuración HTTP para evitar repetición entre las dos clases de storage.
 
 ### Fail Fast
 

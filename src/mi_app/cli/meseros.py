@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -8,12 +6,12 @@ from rich.table import Table
 from src.mi_app.exceptions import AppError
 from src.mi_app.models import Mesero
 from src.mi_app.services import MeseroService
-from src.mi_app.storage import MeseroJSONStorage
+from src.mi_app.storage_supabase import MeseroSupabaseStorage
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
 
-service = MeseroService(MeseroJSONStorage(Path("data/meseros.json")))
+service = MeseroService(MeseroSupabaseStorage())
 
 
 # ── Helpers de UI ─────────────────────────────────────────────────────────────
@@ -55,13 +53,12 @@ def _error(mensaje: str) -> None:
 def flujo_registrar() -> None:
     """Pide los datos por prompt y registra un mesero."""
     console.print("\n[bold cyan]── Registrar mesero ──[/bold cyan]")
-    mesero_id = typer.prompt("  ID del mesero", type=int)
     nombre = typer.prompt("  Nombre completo")
     pin = typer.prompt("  PIN (4 dígitos)", hide_input=True)
     try:
-        mesero = Mesero(mesero_id=mesero_id, nombre=nombre, pin=pin)
+        mesero = Mesero(nombre=nombre, pin=pin)
         service.registrar_mesero(mesero)
-        _ok(f"Mesero [bold cyan]{nombre}[/bold cyan] registrado con ID {mesero_id}")
+        _ok(f"Mesero [bold cyan]{nombre}[/bold cyan] registrado con ID {mesero.mesero_id}")
     except AppError as e:
         _error(str(e))
 
@@ -134,15 +131,14 @@ def flujo_eliminar() -> None:
 
 @app.command("registrar")
 def registrar(
-    mesero_id: int = typer.Option(..., "--id", help="ID único del mesero"),
     nombre: str = typer.Option(..., "--nombre", help="Nombre completo"),
     pin: str = typer.Option(..., "--pin", help="PIN de 4 dígitos numéricos"),
 ) -> None:
     """Registra un nuevo mesero en el sistema."""
     try:
-        mesero = Mesero(mesero_id=mesero_id, nombre=nombre, pin=pin)
+        mesero = Mesero(nombre=nombre, pin=pin)
         service.registrar_mesero(mesero)
-        _ok(f"Mesero [bold cyan]{nombre}[/bold cyan] registrado con ID {mesero_id}")
+        _ok(f"Mesero [bold cyan]{nombre}[/bold cyan] registrado con ID {mesero.mesero_id}")
     except AppError as e:
         _error(str(e))
         raise typer.Exit(code=1)
